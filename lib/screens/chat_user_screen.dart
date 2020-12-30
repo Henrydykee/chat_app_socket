@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:chat_app_socket/golbal.dart';
 import 'package:chat_app_socket/model/chat_message_model.dart';
 import 'package:chat_app_socket/model/user.dart';
@@ -12,15 +14,74 @@ class ChatUserScreen extends StatefulWidget {
 class _ChatUserScreenState extends State<ChatUserScreen> {
   List<ChatMessageModel> chatMessage;
   List<User> _chatUser;
+  bool _connectedToSocket;
+  String _connectMessage;
+
 
   @override
   void initState() {
+    _connectedToSocket = false;
+    _connectMessage = "Connecting..";
     _chatUser = G.getUsersFor(G.loggedinUser);
     super.initState();
+    _connectToSocket();
+  }
+
+  _connectToSocket() async {
+    log("connecting loggedin user ${G.loggedinUser.name} ,${G.loggedinUser.id}");
+    G.initSocket();
+   await G.socketUtils.initSocket(G.loggedinUser);
+    G.socketUtils.connectToSocket();
+    G.socketUtils.setOnConnectListener(onConnect);
+    G.socketUtils..setOnConnectionError(onConnectionError);
+    G.socketUtils.setOnTimeOutListener(onTimeOut);
+    G.socketUtils.setOnDisconnectListener(onDisconnectListener);
+    G.socketUtils.setOnErrorListener(onErrorListener);
+  }
+
+  onConnect(data){
+    log("onConnect :${data}");
+    setState(() {
+      _connectedToSocket = true;
+      _connectMessage ="connected";
+    });
+  }
+
+  onConnectionError(data){
+    log("onConnectionError :${data}");
+    setState(() {
+      _connectedToSocket = false;
+      _connectMessage ="connection error";
+    });
+  }
+
+  onTimeOut(data){
+    log("onTimeOut :${data}");
+    setState(() {
+      _connectedToSocket = false;
+      _connectMessage ="connection timeout";
+    });
+  }
+
+  onDisconnectListener(data){
+    log("onDisconnectListener :${data}");
+    setState(() {
+      _connectedToSocket = false;
+      _connectMessage ="disconnected";
+    });
+  }
+
+  onErrorListener(data){
+    log("onErrorListener :${data}");
+    setState(() {
+      _connectedToSocket = false;
+      _connectMessage ="connection error";
+    });
   }
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
@@ -31,6 +92,7 @@ class _ChatUserScreenState extends State<ChatUserScreen> {
         padding: EdgeInsets.all(30.0),
         child: Column(
           children: [
+            Text(_connectedToSocket ? 'connected' : _connectMessage ),
             Expanded(
                 child: ListView.builder(
                     itemCount: _chatUser.length,
