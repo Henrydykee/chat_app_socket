@@ -26,6 +26,45 @@ class _ChatScreenState extends State<ChatScreen> {
     _toChatUser = G.toChatUser;
     _userOnlineStatus = UserOnlineStatus.connecting;
     super.initState();
+    _initSocketListeners();
+  }
+
+
+  _checkOnline(){
+    ChatMessageModel chatMessageModel = ChatMessageModel(
+        chatId: 0,
+        to: _toChatUser.id,
+        from: G.loggedinUser.id,
+        toUserOnlineStatus: false,
+        message: _chatTextController.text,
+        chatType: SocketUtils.SINGLE_CHAT);
+    G.socketUtils.checkOnline(chatMessageModel);
+  }
+
+  _initSocketListeners() async {
+    G.socketUtils.setOnChatMessageReceiveListener(onChatMessageReceived);
+    G.socketUtils.setOnlineUserStatusListener(onUserStatus);
+  }
+
+  onUserStatus(data){
+    log('User status ${data}');
+    ChatMessageModel chatMessageModel = ChatMessageModel.fromJson(data);
+    if(chatMessageModel.toUserOnlineStatus){
+      _userOnlineStatus = UserOnlineStatus.online;
+    }
+  }
+
+  onChatMessageReceived(data){
+    log('onChatMessageReceieved:'+ data);
+    ChatMessageModel chatMessageModel = ChatMessageModel.fromJson(data);
+    chatMessageModel.fromMe = false;
+    processMessage(chatMessageModel);
+  }
+
+  processMessage(chatMessageModel){
+    setState(() {
+      chatMessage.add(chatMessageModel);
+    });
   }
 
   @override
@@ -55,8 +94,17 @@ class _ChatScreenState extends State<ChatScreen> {
                     itemCount: chatMessage.length,
                     itemBuilder: (context, index) {
                       ChatMessageModel chatmessage = chatMessage[index];
+                      bool fromMe = chatmessage.fromMe;
                       return ListTile(
-                        title: Text(chatmessage.message),
+                        title: Container(
+                          alignment: fromMe? Alignment.centerRight : Alignment.centerLeft,
+                          margin: EdgeInsets.all(10),
+                          color: fromMe ? Colors.green : Colors.red,
+                            child: Padding(
+                              padding: const EdgeInsets.all(15.0),
+                              child: Text(chatmessage.message,style: TextStyle(color: Colors.black),),
+                            )
+                        ),
                       );
                     }),
               ),
@@ -90,14 +138,16 @@ class _ChatScreenState extends State<ChatScreen> {
     if (_chatTextController.text.isEmpty) {
       return;
     }
-    log('sending message to ${_toChatUser.name}')
+    log('sending message to ${_toChatUser.name}');
     ChatMessageModel chatMessageModel = ChatMessageModel(
         chatId: 0,
         to: _toChatUser.id,
         from: G.loggedinUser.id,
         toUserOnlineStatus: false,
         message: _chatTextController.text,
+        fromMe: true,
         chatType: SocketUtils.SINGLE_CHAT);
+    processMessage(chatMessageModel);
     G.socketUtils.sendSingleChatMessage(chatMessageModel);
   }
 

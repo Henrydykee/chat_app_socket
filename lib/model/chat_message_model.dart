@@ -12,6 +12,7 @@ class ChatMessageModel {
     this.message,
     this.chatType,
     this.toUserOnlineStatus,
+    this.fromMe
   });
 
   int chatId;
@@ -20,6 +21,7 @@ class ChatMessageModel {
   String message;
   String chatType;
   bool toUserOnlineStatus;
+  bool fromMe;
 
   factory ChatMessageModel.fromJson(Map<String, dynamic> json) => ChatMessageModel(
     chatId: json["chat_id"],
