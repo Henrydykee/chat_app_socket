@@ -1,6 +1,9 @@
+import 'dart:developer';
+
 import 'package:chat_app_socket/golbal.dart';
 import 'package:chat_app_socket/model/chat_message_model.dart';
 import 'package:chat_app_socket/model/user.dart';
+import 'package:chat_app_socket/socket_utils.dart';
 import 'package:chat_app_socket/widgets/chat_title.dart';
 import 'package:flutter/material.dart';
 
@@ -13,9 +16,13 @@ class _ChatScreenState extends State<ChatScreen> {
   List<ChatMessageModel> chatMessage;
   User _toChatUser;
   UserOnlineStatus _userOnlineStatus;
+
+  TextEditingController _chatTextController;
+
   @override
   void initState() {
     chatMessage = List();
+    _chatTextController = TextEditingController();
     _toChatUser = G.toChatUser;
     _userOnlineStatus = UserOnlineStatus.connecting;
     super.initState();
@@ -40,18 +47,18 @@ class _ChatScreenState extends State<ChatScreen> {
           elevation: 0.0,
         ),
         body: Padding(
-          padding: const EdgeInsets.only(left: 10,right: 10,bottom: 20),
+          padding: const EdgeInsets.only(left: 10, right: 10, bottom: 20),
           child: Column(
             children: [
               Expanded(
                 child: ListView.builder(
                     itemCount: chatMessage.length,
                     itemBuilder: (context, index) {
-                  ChatMessageModel chatmessage = chatMessage[index];
-                  return ListTile(
-                    title: Text(chatmessage.message),
-                  );
-                }),
+                      ChatMessageModel chatmessage = chatMessage[index];
+                      return ListTile(
+                        title: Text(chatmessage.message),
+                      );
+                    }),
               ),
               _buttomChatArea()
             ],
@@ -66,7 +73,9 @@ class _ChatScreenState extends State<ChatScreen> {
         children: [
           _chatTextArea(),
           IconButton(
-            onPressed: () {},
+            onPressed: () {
+              _sendMessageBtnTap();
+            },
             icon: Icon(
               Icons.send,
               color: Colors.blue,
@@ -77,9 +86,25 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
+  _sendMessageBtnTap() async {
+    if (_chatTextController.text.isEmpty) {
+      return;
+    }
+    log('sending message to ${_toChatUser.name}')
+    ChatMessageModel chatMessageModel = ChatMessageModel(
+        chatId: 0,
+        to: _toChatUser.id,
+        from: G.loggedinUser.id,
+        toUserOnlineStatus: false,
+        message: _chatTextController.text,
+        chatType: SocketUtils.SINGLE_CHAT);
+    G.socketUtils.sendSingleChatMessage(chatMessageModel);
+  }
+
   _chatTextArea() {
     return Expanded(
         child: TextField(
+      controller: _chatTextController,
       decoration: InputDecoration(
           enabledBorder:
               OutlineInputBorder(borderRadius: BorderRadius.circular(10.0)),

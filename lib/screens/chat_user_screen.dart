@@ -4,6 +4,7 @@ import 'package:chat_app_socket/golbal.dart';
 import 'package:chat_app_socket/model/chat_message_model.dart';
 import 'package:chat_app_socket/model/user.dart';
 import 'package:chat_app_socket/screens/chat_screen.dart';
+import 'package:chat_app_socket/screens/login_screen.dart';
 import 'package:flutter/material.dart';
 
 class ChatUserScreen extends StatefulWidget {
@@ -80,12 +81,26 @@ class _ChatUserScreenState extends State<ChatUserScreen> {
   }
 
   @override
+  void dispose() {
+    G.socketUtils.closeConnect();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
 
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
         title: Text("User List"),
+        actions: [
+          IconButton(
+              icon: Icon(Icons.close,color: Colors.white),
+              onPressed: (){
+                Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (context) =>
+                    LoginScreen()), (Route<dynamic> route) => false);
+              })
+        ],
       ),
       body: Container(
         alignment: Alignment.center,
