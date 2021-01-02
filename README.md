@@ -4,6 +4,14 @@ A new Flutter application.
 
 ## Getting Started
 
+Before you proceed make sure you have
+VSCode on your pc 
+installed Nodejs (https://nodejs.org/en/download/)
+installed socket (https://www.npmjs.com/package/socket.io)
+installed express (https://expressjs.com/en/starter/installing.html)
+
+you should also be comfortable with working with terminal/cmd
+
 This project explains how socket.io works on a flutter chat application, a bit of Nodejs is need in setting up the sever side of this app.
 
 A few resources to get you started if this is your first Flutter project:
