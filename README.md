@@ -4,12 +4,12 @@ A new Flutter application.
 
 ## Getting Started
 
-This project is a starting point for a Flutter application.
+This project explains how socket.io works on a flutter chat application, a bit of Nodejs is need in setting up the sever side of this app.
 
 A few resources to get you started if this is your first Flutter project:
 
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
+- [here is a turtorial that help me understand this](https://www.youtube.com/watch?v=lrg9QNZMsmw&t=1409s)
+
 
 For help getting started with Flutter, view our
 [online documentation](https://flutter.dev/docs), which offers tutorials,
